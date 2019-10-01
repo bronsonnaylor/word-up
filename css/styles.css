@@ -52,10 +52,11 @@ main {
 .letter-chip, .submitted-word {
     font-size: 40px;
     color: orange;
+    background: lightgray;
     font-weight: bold;
     margin-right: 2%;
     margin-bottom: 2%;
-    box-shadow: 1px 2px 2px 1px rgba(0,0,0,0.1);
+    box-shadow: 2px 4px 4px 1px rgba(0,0,0,0.2);
     border-radius: 4px;
     padding: 8px;
     display: inline-block;
@@ -75,6 +76,8 @@ main {
     padding: 8px;
     border-radius: 3px;
     margin: 6px;
+    word-wrap: break-word;
+    line-height: 50px;
 }
 
 /* A smaller chip to display the score of a letter or word */
@@ -89,7 +92,7 @@ main {
     border-radius: 2px;
     font-size: 12px;
     width: 14px;
-    display: inline-block;
+    display: block;
 }
 
 .submitted-word-success {

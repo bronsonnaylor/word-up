@@ -37,7 +37,7 @@ Vue.component('submitted-word', {
         word: String, // The word that was typed
         score: Number, // The score (computed by adding the value of each letter)
         loading: Boolean, // True/False whether we are still waiting for a response
-                          // from the Pearson API to say if this is a real word.
+                          // from the Oxford API to say if this is a real word.
         isRealWord: Boolean, // Not set unless finished loading.
     },
 });
@@ -120,7 +120,7 @@ var app = new Vue({
         // all the stuff we need to keep track of
         return {
             // how much time is left in the current game
-            secondsRemaining: GAME_DURATION,
+            secondsRemaining: 0,
 
             // a list of the 7 letters that the player is allowed to use
             allowedLetters: [],
@@ -150,6 +150,9 @@ var app = new Vue({
         gameInProgress: function() {
             return this.secondsRemaining > 0 && this.timer !== null;
         },
+        allDisallowedLetters: function() {
+            return Object.keys(scrabblePointsForEachLetter).filter(letter => !this.allowedLetters.includes(letter));
+        },
         disallowedLettersInWord: function() {
             /**
              * Given a word, returns a list of all the disallowed letters in that word
@@ -162,7 +165,7 @@ var app = new Vue({
 
         containsOnlyAllowedLetters: function() {
             /**
-             * returns true if the currentAttempt is "clean",
+             * returns true if the currentAttecurrentAtmpt is "clean",
              * i.e. the word does not contain any disallowed letters
              */
             return this.disallowedLettersInWord.length === 0;
@@ -175,8 +178,10 @@ var app = new Vue({
              * Given a letter, checks whether that letter is "disallowed"
              * meaning it is not a member of the .allowedLetters list from the current data
              */
-
             //TODO 7 actually check if the letter is disallowed
+            if (!this.allowedLetters.includes(letter)) {
+                return true;
+            }
             return false;
         },
 
@@ -208,6 +213,11 @@ var app = new Vue({
             this.wordSubmissions = [];
             this.currentAttempt = '';
             this.timer = this.startTimer();
+            // let textbox = document.createElement(input);
+            console.log(this.$refs.textbox);
+            this.$refs.textbox.focus();
+        },
+        focus: function() {
         },
         endGame: function() {
             this.stopTimer();
@@ -224,7 +234,7 @@ var app = new Vue({
             // TODO 17
             // replace the hardcoded 'false' with the real answer
             var alreadyUsed = false;
-            if (this.containsOnlyAllowedLetters && !alreadyUsed) {
+            if (this.containsOnlyAllowedLetters && !alreadyUsed && this.secondsRemaining != 0) {
                 // add the word, with it's score.
                 // set loading to true, and isRealWord to null, to represent
                 // that we're not sure yet if this is a real word.
@@ -232,6 +242,7 @@ var app = new Vue({
                     word: word,
                     loading: true,
                 });
+                console.log(this.wordSubmissions)
 
                 // Now, check against the api to see if the word is real.
                 // when the api call comes back, we can update loading and isRealWord.
