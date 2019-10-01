@@ -69,7 +69,7 @@
                 <p>Spell as many words as you can, using only these letters:</p>
                 <letter-chip class="letter-chip" v-for="letter in allowedLetters" v-bind:letter="letter" v-bind:value="letterScore(letter)">{{ letter }}</letter-chip>
                 <br>
-                <input type="text" ref="textbox" @keyup.enter="addNewWordSubmission(currentAttempt)" v-model="currentAttempt" autofocus>
+                <input type="text" v-bind:disabled="textDisabled" ref="textbox" @keyup.enter="addNewWordSubmission(currentAttempt)" v-model="currentAttempt" autofocus="autofocus">
                 <!-- TODO 3 make this input autofocused when it's created. -->
                 <!-- TODO 6 keep this in sync with the "currentAttempt" value in your Vue. -->
                 <!-- TODO 9 disable the input when the timer runs out -->

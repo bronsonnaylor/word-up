@@ -47,7 +47,7 @@ Vue.component('submitted-word', {
 
 // Some helper functions for computing scores of letters and words.
 
-var GAME_DURATION = 60;
+var GAME_DURATION = 3;
 
 // borrowing Scrabble's point system
 var scrabblePointsForEachLetter = {
@@ -119,6 +119,7 @@ var app = new Vue({
     data: function() {
         // all the stuff we need to keep track of
         return {
+            textDisabled: true,
             // how much time is left in the current game
             secondsRemaining: 0,
 
@@ -214,8 +215,12 @@ var app = new Vue({
             this.currentAttempt = '';
             this.timer = this.startTimer();
             // let textbox = document.createElement(input);
-            console.log(this.$refs.textbox);
+            console.log(this.textDisabled);
+            this.textDisabled = !this.textDisabled;
+            console.log(this.textDisabled);
+            console.log(this.$refs.textbox)
             this.$refs.textbox.focus();
+            console.log(this.textDisabled);
         },
         focus: function() {
         },
