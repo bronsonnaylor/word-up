@@ -214,13 +214,12 @@ var app = new Vue({
             this.wordSubmissions = [];
             this.currentAttempt = '';
             this.timer = this.startTimer();
+            this.textDisabled = false;
             // let textbox = document.createElement(input);
-            console.log(this.textDisabled);
-            this.textDisabled = !this.textDisabled;
-            console.log(this.textDisabled);
-            console.log(this.$refs.textbox)
-            this.$refs.textbox.focus();
-            console.log(this.textDisabled);
+            this.$nextTick()
+                .then(() => {
+                    this.$refs.textbox.focus();
+                })
         },
         focus: function() {
         },
@@ -303,8 +302,9 @@ var app = new Vue({
             this.secondsRemaining -= 1;
             if (this.secondsRemaining > 0) {
                 // in one second, call tick again
-                this.timer = setTimeout(() => this.tick(), 1000);
+                return this.timer = setTimeout(() => this.tick(), 1000);
             }
+            this.textDisabled = true;
         },
         stopTimer: function() {
             if (this.timer) {
