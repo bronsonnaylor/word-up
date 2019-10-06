@@ -47,7 +47,7 @@ Vue.component('submitted-word', {
 
 // Some helper functions for computing scores of letters and words.
 
-var GAME_DURATION = 3;
+var GAME_DURATION = 60;
 
 // borrowing Scrabble's point system
 var scrabblePointsForEachLetter = {
@@ -76,7 +76,8 @@ function wordScore(word) {
     // TODO 15
     // Replace the empty list below.
     // Map the list of letters into a list of scores, one for each letter.
-    var letterScores = [];
+    new Map()
+    var letterScores = letters.map(points => scrabblePointsForEachLetter[points]);
 
     // return the total sum of the letter scores
     return letterScores.reduce(add, 0);
@@ -146,7 +147,13 @@ var app = new Vue({
             // TODO 16
             // add up all the wordScore values from the words in this.wordSubmissions
             // be sure not to include any that aren't real words.
-            return 0;
+            let totalScore = 0;
+            this.wordSubmissions.forEach(function(word) {
+                if (word.isRealWord === true) {
+                    totalScore += wordScore(word.word);
+                }
+            });
+            return totalScore;
         },
         gameInProgress: function() {
             return this.secondsRemaining > 0 && this.timer !== null;
@@ -237,21 +244,27 @@ var app = new Vue({
             // Do we already have a wordSubmission with this word?
             // TODO 17
             // replace the hardcoded 'false' with the real answer
-            var alreadyUsed = false;
-            if (this.containsOnlyAllowedLetters && !alreadyUsed && this.secondsRemaining != 0) {
+            for (let i = 0; i < this.wordSubmissions.length; i++) {
+                if (this.wordSubmissions[i].word === word) {
+                    return;
+                }
+	    }
+            if (this.containsOnlyAllowedLetters) {
                 // add the word, with it's score.
                 // set loading to true, and isRealWord to null, to represent
                 // that we're not sure yet if this is a real word.
                 this.wordSubmissions.push({
                     word: word,
                     loading: true,
+                    isRealWord: false
                 });
                 console.log(this.wordSubmissions)
+		this.checkIfWordIsReal(word)
 
                 // Now, check against the api to see if the word is real.
                 // when the api call comes back, we can update loading and isRealWord.
-                this.checkIfWordIsReal(word);
             }
+            this.currentAttempt = '';
             // TODO 10
             // now that we've added the word, clear out the text input.
         },
@@ -262,28 +275,30 @@ var app = new Vue({
              * Subsequently updates the .isRealWord property of
              * the corresponding wordSubmission in the data.
              */
-
             // TODO 12 what should the url be?
-            fetch(`www.example.com`)
+            // fetch(`https://od-api.oxforddictionaries.com/api/v2/entries/en-us/$word,[${ID}, ${apiKey}]`)
+            return fetch(`https://www.dictionaryapi.com/api/v3/references/collegiate/json/${word}?key=dad6981f-1e15-42f6-9442-7b82ee8e45ea`)
                 .then(response => (response.ok ? response.json() : Promise.reject(response)))
                 .then(resp => {
-                    console.log("We received a response from Pearson!");
 
                     // let's print the response to the console so we can take a looksie
-                    console.log(resp);
 
                     // TODO 13
                     // Replace the 'true' below.
                     // If the response contains any results, then the word is legitimate.
                     // Otherwise, it is not.
-                    var isARealWord = true;
+                    if (typeof resp[0] == 'object') {
+			    this.wordSubmissions[this.wordSubmissions.length-1].isRealWord = true;
+                    }
 
-                    // TODO 14
+              // TODO 14
                     // Update the data to say that the word is real.
                     // You'll have to find the correct entry in this.wordSubmissions,
                     // and change it's loading and isRealWord values
                 })
-                .catch(error => console.error(error));
+                .catch(error => {
+                    console.log(error)
+                });
         },
 
 
@@ -304,6 +319,7 @@ var app = new Vue({
                 // in one second, call tick again
                 return this.timer = setTimeout(() => this.tick(), 1000);
             }
+            this.currentAttempt = '';
             this.textDisabled = true;
         },
         stopTimer: function() {
